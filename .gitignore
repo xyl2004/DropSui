@@ -101,3 +101,20 @@ Thumbs.db
 # ESP32 specific
 sdkconfig
 sdkconfig.old
+
+# Security - Private keys and sensitive files
+*.key
+*.pem
+*.p12
+*.pfx
+private_keys/
+secrets/
+
+# Environment files with sensitive data
+.env.local
+.env.production
+.env.staging
+
+# Logs that might contain sensitive information
+*.log
+logs/

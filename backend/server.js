@@ -10,7 +10,7 @@ const { createClient } = require('@supabase/supabase-js');
 const BucketProtocolService = require('./bucket_protocol_service');
 const { Transaction } = require('@mysten/sui/transactions');
 const { getFullnodeUrl, SuiClient } = require('@mysten/sui/client');
-const { Ed25519Keypair } = require('@mysten/sui/keypairs/ed25519');
+const { Ed25519Keypair } = require('@mysten/sui.js/keypairs/ed25519');
 require('dotenv').config();
 
 const execAsync = promisify(exec);
@@ -335,22 +335,11 @@ app.post('/api/wallets', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: '钱包名称是必填项' });
     }
 
-    // 生成新的钱包地址和私钥（使用Sui SDK生成的真实数据）
-    const suiAddresses = [
-      '0x7d7a4a214a6d2a02ca0fac7e9fd210ba2f3e69ca8883d742c7d8865ff83b255d',
-      '0xa77befcecba2ae3b4fd964d2f89caa357ccbbaa37a08914995defe77d4c50bb2',
-      '0x230d6f7ef29d60f40b0d3fb706d335170b303e2e104877705cea64e9f695743e'
-    ];
-    const suiPrivateKeys = [
-      '0xsuiprivkey1qq6epnsqgrzcz0qf2dvttg09q9wuhmrl2xl2z8eyzkkxy77sky82u005jl6',
-      '0xsuiprivkey1qqfeu6lm635eureg3zkygrks304mrehrtvg4mcja506rtkjkfged7gmrc03',
-      '0xsuiprivkey1qqyf2mn62c04kxlt55sk4h0p54y0yh5xmvfxglpm87u0j225ugf67x7ug2x'
-    ];
-    
-    const randomIndex = Math.floor(Math.random() * suiAddresses.length);
-    const address = suiAddresses[randomIndex];
-    const privateKey = suiPrivateKeys[randomIndex];
-    const publicKey = '0x' + Math.random().toString(16).substr(2, 64); // 生成公钥
+    // 使用Sui SDK真实生成钱包（与generate_sui_wallet.js保持一致）
+    const keypair = Ed25519Keypair.generate();
+    const address = keypair.getPublicKey().toSuiAddress();
+    const privateKey = keypair.getSecretKey().toString('hex');
+    const publicKey = keypair.getPublicKey().toBase64();
     const encryptedPrivateKey = encrypt(privateKey);
 
     // 将其他钱包设为非活跃状态
