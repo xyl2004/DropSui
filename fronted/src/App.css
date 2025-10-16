@@ -1,0 +1,2032 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.header {
+  margin-bottom: 40px;
+  color: white;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.header-title {
+  text-align: left;
+}
+
+.header-title h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header-title p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.header-auth {
+  display: flex;
+  align-items: center;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-btn {
+  padding: 10px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.auth-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.login-btn {
+  background: rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+.register-btn {
+  background: rgba(118, 75, 162, 0.3);
+  border-color: rgba(118, 75, 162, 0.5);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.welcome-text {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  background: rgba(220, 53, 69, 0.3);
+  border: 2px solid rgba(220, 53, 69, 0.5);
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(220, 53, 69, 0.5);
+  transform: translateY(-1px);
+}
+
+.wallet-btn {
+  padding: 8px 16px;
+  background: rgba(40, 167, 69, 0.3);
+  border: 2px solid rgba(40, 167, 69, 0.5);
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wallet-btn:hover {
+  background: rgba(40, 167, 69, 0.5);
+  transform: translateY(-1px);
+}
+
+.main {
+  width: 100%;
+  max-width: 600px;
+}
+
+.count-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.count-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.count-display {
+  margin-bottom: 30px;
+}
+
+.count-number {
+  display: block;
+  font-size: 4rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.count-label {
+  font-size: 1.2rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.time-display {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
+}
+
+.time-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.time-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  font-family: 'Courier New', monospace;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #28a745;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #28a745;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: white;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error {
+  background: white;
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  color: #dc3545;
+  max-width: 500px;
+}
+
+.error h2 {
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.error p {
+  margin-bottom: 10px;
+  color: #666;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .app {
+    padding: 15px;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+  
+  .count-card {
+    padding: 30px 20px;
+  }
+  
+  .count-number {
+    font-size: 3rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .header-title {
+    text-align: center;
+  }
+  
+  .auth-buttons {
+    justify-content: center;
+  }
+  
+  .user-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* 模态框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 25px 0 25px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 25px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.auth-form {
+  padding: 0 25px 25px 25px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-group input::placeholder {
+  color: #999;
+}
+
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  border-left: 4px solid #c33;
+}
+
+.submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.modal-footer {
+  padding: 0 25px 25px 25px;
+  text-align: center;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.modal-footer p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.switch-mode-btn {
+  background: none;
+  border: none;
+  color: #667eea;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 5px;
+  text-decoration: underline;
+}
+
+.switch-mode-btn:hover {
+  color: #5a6fd8;
+}
+
+/* 钱包管理样式 */
+.wallet-modal {
+  max-width: 800px;
+  max-height: 90vh;
+}
+
+.wallet-content {
+  padding: 0 25px 25px 25px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.active-wallet {
+  margin-bottom: 30px;
+}
+
+.active-wallet h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.create-wallet {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #28a745;
+}
+
+.create-wallet h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.create-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.create-form input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.create-form input:focus {
+  outline: none;
+  border-color: #28a745;
+}
+
+.create-btn {
+  padding: 10px 20px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-btn:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.create-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.import-btn {
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 10px;
+}
+
+.import-btn:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+/* 导入钱包模态框样式 */
+.import-modal {
+  max-width: 500px;
+}
+
+.import-content {
+  padding: 20px;
+}
+
+.warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  color: #856404;
+  font-size: 14px;
+}
+
+.private-key-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: monospace;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+}
+
+.private-key-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.private-key-input.valid {
+  border-color: #28a745;
+}
+
+.private-key-input.invalid {
+  border-color: #dc3545;
+}
+
+.input-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.validation-message {
+  font-size: 12px;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.validation-message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.validation-message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cancel-btn {
+  padding: 10px 20px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background: #545b62;
+}
+
+.submit-btn {
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.wallets-list h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.no-wallets {
+  text-align: center;
+  color: #666;
+  padding: 40px;
+  font-style: italic;
+}
+
+.wallets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.wallet-card {
+  background: white;
+  border: 2px solid #e1e5e9;
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.wallet-card:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-card.active {
+  border-color: #28a745;
+  background: #f8fff9;
+}
+
+.wallet-info {
+  margin-bottom: 15px;
+}
+
+.wallet-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.wallet-address {
+  color: #666;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  word-break: break-all;
+  margin-bottom: 5px;
+}
+
+.wallet-date {
+  color: #999;
+  font-size: 12px;
+}
+
+.wallet-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.wallet-status {
+  color: #28a745;
+  font-weight: 600;
+  font-size: 12px;
+  margin-right: auto;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.export-btn {
+  background: #667eea;
+  color: white;
+}
+
+.export-btn:hover {
+  background: #5a6fd8;
+  transform: translateY(-1px);
+}
+
+.switch-btn {
+  background: #28a745;
+  color: white;
+}
+
+.switch-btn:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+/* 私钥显示模态框样式 */
+.private-key-modal {
+  max-width: 600px;
+}
+
+/* 定投模块样式 */
+.dca-section {
+  margin: 20px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dca-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.dca-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.dca-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.dca-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.dca-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.no-dca-plans {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  grid-column: 1 / -1;
+}
+
+.no-dca-plans p {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.create-dca-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.create-dca-btn:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+.dca-plan-card {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.dca-plan-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.dca-plan-card.active {
+  border-color: #28a745;
+  background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
+}
+
+.dca-plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.dca-plan-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.dca-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dca-status.running {
+  background: #d4edda;
+  color: #155724;
+}
+
+.dca-status.stopped {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.dca-plan-details {
+  margin-bottom: 20px;
+}
+
+.dca-detail {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 5px 0;
+}
+
+.dca-label {
+  font-weight: 500;
+  color: #666;
+}
+
+.dca-value {
+  color: #333;
+  font-weight: 600;
+}
+
+.dca-address {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #666;
+  word-break: break-all;
+}
+
+.dca-plan-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dca-action-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.dca-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.start-btn {
+  background: #28a745;
+  color: white;
+}
+
+.start-btn:hover {
+  background: #218838;
+}
+
+.stop-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.stop-btn:hover {
+  background: #c82333;
+}
+
+.edit-btn {
+  background: #ffc107;
+  color: #212529;
+}
+
+.edit-btn:hover {
+  background: #e0a800;
+}
+
+.delete-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #5a6268;
+}
+
+/* 定投模态框样式 */
+.dca-modal {
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.dca-modal-content {
+  padding: 20px;
+}
+
+.dca-modal-actions {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.dca-plans-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.dca-plan-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.dca-plan-info h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.dca-plan-info p {
+  margin: 2px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.dca-plan-info .dca-address {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #999;
+  word-break: break-all;
+}
+
+/* 定投表单样式 */
+.dca-form {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+.cancel-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.private-key-content {
+  padding: 0 25px 25px 25px;
+}
+
+.warning {
+  background: #fff3cd;
+  color: #856404;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #ffc107;
+  font-weight: 500;
+}
+
+.private-key-display {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.private-key-text {
+  width: 100%;
+  height: 120px;
+  padding: 15px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  resize: none;
+  background: #f8f9fa;
+}
+
+.copy-btn {
+  padding: 12px 24px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+}
+
+.copy-btn:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+/* 执行计数样式 */
+.execution-count {
+  border-top: 1px solid #eee;
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.count-badge {
+  background: #007bff;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.dca-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.execution-count-badge {
+  background: #28a745;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* 交易记录相关样式 */
+.transactions-btn {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.transactions-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+}
+
+.view-all-transactions-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 10px;
+}
+
+.view-all-transactions-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 交易记录模态框样式 */
+.transactions-modal {
+  max-width: 900px;
+  width: 95%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.transactions-content {
+  padding: 20px;
+}
+
+.no-transactions {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.no-transactions .hint {
+  font-size: 0.9rem;
+  margin-top: 10px;
+  opacity: 0.7;
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.transaction-item {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.transaction-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.transaction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.transaction-info h3 {
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.transaction-meta {
+  display: flex;
+  gap: 15px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.transaction-id {
+  background: #e9ecef;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.transaction-time {
+  color: #666;
+}
+
+.transaction-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.transaction-status.confirmed {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.transaction-status.pending {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.transaction-status.failed {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.transaction-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transaction-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.transaction-row .label {
+  font-weight: 500;
+  color: #555;
+  min-width: 80px;
+  font-size: 0.9rem;
+}
+
+.transaction-row .value {
+  color: #333;
+  font-family: monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+.transaction-row .value.tx-hash {
+  cursor: pointer;
+  color: #007bff;
+  text-decoration: underline;
+  position: relative;
+}
+
+.transaction-row .value.tx-hash:hover {
+  color: #0056b3;
+}
+
+.copy-hint {
+  font-size: 0.8rem;
+  color: #666;
+  margin-left: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.transaction-row .value.tx-hash:hover .copy-hint {
+  opacity: 1;
+}
+
+.transaction-row .value.address {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.transaction-row .value.amount {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.transaction-row.error {
+  background: #f8d7da;
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 4px solid #dc3545;
+}
+
+.transaction-row.error .value.error-message {
+  color: #721c24;
+}
+
+.transaction-actions {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e9ecef;
+}
+
+.view-on-explorer-btn {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.view-on-explorer-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .header-title h1 {
+    font-size: 2rem;
+  }
+  
+  .dca-plans-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dca-plan-actions {
+    flex-direction: column;
+  }
+  
+  .dca-action-btn {
+    width: 100%;
+    margin: 5px 0;
+  }
+  
+  .transactions-modal {
+    width: 98%;
+    max-height: 90vh;
+  }
+  
+  .transaction-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .transaction-meta {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .transaction-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .transaction-row .label {
+    min-width: auto;
+  }
+}
+
+/* Bucket Protocol 理财策略样式 */
+.bucket-strategy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.strategy-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.strategy-badge.none {
+  background: #6b7280;
+  color: white;
+}
+
+.strategy-badge.low {
+  background: #10b981;
+  color: white;
+}
+
+.strategy-badge.medium {
+  background: #f59e0b;
+  color: white;
+}
+
+.expected-return {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.bucket-strategy-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.strategy-description {
+  margin-top: 8px;
+}
+
+.strategy-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.strategy-info p {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+.strategy-risk {
+  font-weight: 500;
+}
+
+.strategy-return {
+  color: #059669;
+  font-weight: 500;
+}
+
+/* 理财策略选择器样式 */
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 理财信息展示 */
+.dca-plan-card .bucket-strategy {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 8px;
+}
+
+.dca-plan-card .strategy-badge {
+  font-size: 11px;
+  padding: 3px 6px;
+}
+
+.dca-plan-card .expected-return {
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+/* Bucket Protocol 理财模式样式 */
+.bucket-info {
+  margin-top: 16px;
+}
+
+.bucket-mode-notice {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 16px;
+  color: white;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.notice-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.notice-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.notice-content p {
+  margin: 4px 0;
+  font-size: 13px;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.notice-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* 理财策略选项样式优化 */
+.form-group select option {
+  padding: 8px;
+  font-size: 14px;
+}
+
+/* 传统转账模式提示 */
+.form-group .address-required-notice {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #856404;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .bucket-mode-notice {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .notice-icon {
+    align-self: center;
+  }
+}
+
+/* 币种信息样式 */
+.token-info {
+  margin-top: 12px;
+}
+
+.token-description {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.token-description p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #4b5563;
+}
+
+.token-description strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* 币种选择器优化 */
+.form-group select option {
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .token-description {
+    padding: 10px;
+  }
+  
+  .token-description p {
+    font-size: 12px;
+  }
+}
+
+/* 提币功能样式 */
+.withdraw-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 8px;
+}
+
+.withdraw-btn:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-1px);
+}
+
+.withdraw-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 提币模态框样式 */
+.withdraw-form {
+  max-width: 500px;
+}
+
+.plan-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.plan-info h3 {
+  margin: 0 0 8px 0;
+  color: #1f2937;
+  font-size: 18px;
+}
+
+.plan-info p {
+  margin: 4px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.balance-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.balance-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.balance-amount {
+  font-weight: 700;
+  color: #059669;
+  font-size: 16px;
+}
+
+.amount-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.amount-input-group input {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.amount-input-group input:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.token-symbol {
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.amount-options {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.amount-btn {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.amount-btn:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.withdraw-info {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.withdraw-info h4 {
+  margin: 0 0 12px 0;
+  color: #92400e;
+  font-size: 14px;
+}
+
+.withdraw-info ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.withdraw-info li {
+  margin: 4px 0;
+}
+
+.modal-footer .withdraw-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.modal-footer .withdraw-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-1px);
+}
+
+.modal-footer .withdraw-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .amount-input-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .token-symbol {
+    align-self: stretch;
+    text-align: center;
+  }
+  
+  .amount-options {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .balance-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* 提币成功消息样式 */
+.success-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(76, 175, 80, 0.3);
+  color: white;
+  min-width: 350px;
+  max-width: 500px;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.success-content {
+  display: flex;
+  align-items: flex-start;
+  padding: 20px;
+  gap: 15px;
+}
+
+.success-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.success-details {
+  flex: 1;
+}
+
+.success-details h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.success-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.success-info p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+  word-break: break-all;
+}
+
+.success-info strong {
+  font-weight: 600;
+  opacity: 1;
+}
+
+.close-success-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.close-success-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 响应式设计 - 成功消息 */
+@media (max-width: 768px) {
+  .success-message {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+    max-width: none;
+  }
+  
+  .success-content {
+    padding: 15px;
+    gap: 12px;
+  }
+  
+  .success-details h3 {
+    font-size: 16px;
+  }
+  
+  .success-info p {
+    font-size: 13px;
+  }
+}
