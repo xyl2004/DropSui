@@ -10,8 +10,24 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #1e2f47 0%, #0f1b2d 50%, #0a1220 100%);
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(79, 70, 229, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .app {
@@ -20,6 +36,8 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .header {
@@ -42,12 +60,17 @@ body {
 .header-title h1 {
   font-size: 2.5rem;
   margin-bottom: 10px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  position: relative;
+  color: #ffffff;
+  font-weight: 600;
 }
+
 
 .header-title p {
   font-size: 1.1rem;
-  opacity: 0.9;
+  opacity: 0.7;
+  color: #a0aec0;
 }
 
 .header-auth {
@@ -62,31 +85,48 @@ body {
 
 .auth-btn {
   padding: 10px 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 47, 71, 0.5);
   color: white;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.auth-btn:hover::before {
+  left: 100%;
 }
 
 .auth-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(30, 47, 71, 0.8);
+  border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
 }
 
 .login-btn {
-  background: rgba(102, 126, 234, 0.3);
-  border-color: rgba(102, 126, 234, 0.5);
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 .register-btn {
-  background: rgba(118, 75, 162, 0.3);
-  border-color: rgba(118, 75, 162, 0.5);
+  background: rgba(79, 70, 229, 0.2);
+  border-color: rgba(79, 70, 229, 0.3);
 }
 
 .user-info {
@@ -98,54 +138,61 @@ body {
 .welcome-text {
   font-size: 14px;
   opacity: 0.9;
+  color: #a0aec0;
 }
 
 .logout-btn {
   padding: 8px 16px;
-  background: rgba(220, 53, 69, 0.3);
-  border: 2px solid rgba(220, 53, 69, 0.5);
+  background: rgba(30, 47, 71, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
   border-radius: 6px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .logout-btn:hover {
-  background: rgba(220, 53, 69, 0.5);
+  background: rgba(30, 47, 71, 0.8);
+  border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
 }
 
 .wallet-btn {
   padding: 8px 16px;
-  background: rgba(40, 167, 69, 0.3);
-  border: 2px solid rgba(40, 167, 69, 0.5);
+  background: rgba(30, 47, 71, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
   border-radius: 6px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .wallet-btn:hover {
-  background: rgba(40, 167, 69, 0.5);
+  background: rgba(30, 47, 71, 0.8);
+  border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
 }
 
 .main {
   width: 100%;
-  max-width: 600px;
+  max-width: 1200px;
 }
 
 .count-card {
-  background: white;
-  border-radius: 20px;
+  background: rgba(30, 47, 71, 0.5);
+  border-radius: 16px;
   padding: 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   text-align: center;
   margin-bottom: 30px;
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .count-card::before {
@@ -154,8 +201,23 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  height: 2px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.5), rgba(79, 70, 229, 0.5));
+}
+
+.count-card::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: 
+    radial-gradient(circle at 30% 30%, rgba(74, 144, 226, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(46, 91, 186, 0.1) 0%, transparent 50%);
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: pulse 4s ease-in-out infinite;
 }
 
 .count-display {
@@ -166,28 +228,28 @@ body {
   display: block;
   font-size: 4rem;
   font-weight: bold;
-  color: #333;
+  color: #ffffff;
   margin-bottom: 10px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .count-label {
   font-size: 1.2rem;
-  color: #666;
+  color: #a0aec0;
   font-weight: 500;
 }
 
 .time-display {
   margin-bottom: 30px;
   padding: 20px;
-  background: #f8f9fa;
+  background: rgba(20, 35, 55, 0.5);
   border-radius: 12px;
-  border-left: 4px solid #667eea;
+  border-left: 3px solid rgba(59, 130, 246, 0.5);
 }
 
 .time-label {
   font-size: 0.9rem;
-  color: #666;
+  color: #a0aec0;
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -196,7 +258,7 @@ body {
 .time-value {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: #ffffff;
   font-family: 'Courier New', monospace;
 }
 
@@ -256,13 +318,15 @@ body {
 }
 
 .error {
-  background: white;
+  background: rgba(255, 255, 255, 0.75);
   border-radius: 15px;
   padding: 40px;
   text-align: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   color: #dc3545;
   max-width: 500px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .error h2 {
@@ -273,6 +337,44 @@ body {
 .error p {
   margin-bottom: 10px;
   color: #666;
+}
+
+/* 波浪装饰元素 */
+.wave-decoration {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M0,60 C300,120 600,0 900,60 C1050,90 1200,30 1200,60 L1200,120 L0,120 Z' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E") repeat-x;
+  opacity: 0.6;
+  animation: wave 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes wave {
+  0%, 100% { transform: translateX(0px); }
+  50% { transform: translateX(-50px); }
+}
+
+/* 水滴装饰 */
+.droplet-decoration {
+  position: absolute;
+  top: 20%;
+  right: 10%;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.3) 0%, rgba(46, 91, 186, 0.2) 100%);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  animation: droplet 6s ease-in-out infinite;
+  pointer-events: none;
+  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.2);
+}
+
+@keyframes droplet {
+  0%, 100% { transform: rotate(-45deg) scale(1); }
+  50% { transform: rotate(-45deg) scale(1.1); }
 }
 
 /* 响应式设计 */
@@ -310,6 +412,7 @@ body {
     flex-direction: column;
     gap: 10px;
   }
+  
 }
 
 /* 模态框样式 */
@@ -328,14 +431,16 @@ body {
 }
 
 .modal-content {
-  background: white;
+  background: rgba(30, 47, 71, 0.95);
   border-radius: 15px;
   width: 100%;
   max-width: 400px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   animation: modalSlideIn 0.3s ease-out;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @keyframes modalSlideIn {
@@ -354,21 +459,22 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 25px 25px 0 25px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 25px;
 }
 
 .modal-header h2 {
   margin: 0;
-  color: #333;
+  color: #ffffff;
   font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .modal-close {
   background: none;
   border: none;
   font-size: 24px;
-  color: #999;
+  color: #a0aec0;
   cursor: pointer;
   padding: 0;
   width: 30px;
@@ -381,8 +487,8 @@ body {
 }
 
 .modal-close:hover {
-  background: #f5f5f5;
-  color: #333;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 .auth-form {
@@ -396,7 +502,7 @@ body {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #333;
+  color: #e2e8f0;
   font-weight: 500;
   font-size: 14px;
 }
@@ -404,37 +510,40 @@ body {
 .form-group input {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #e1e5e9;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 27, 45, 0.5);
+  color: #ffffff;
   border-radius: 8px;
   font-size: 14px;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
   box-sizing: border-box;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(15, 27, 45, 0.8);
 }
 
 .form-group input::placeholder {
-  color: #999;
+  color: #64748b;
 }
 
 .error-message {
-  background: #fee;
-  color: #c33;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
   padding: 10px 15px;
   border-radius: 6px;
   margin-bottom: 15px;
+  border-left: 3px solid #ef4444;
   font-size: 14px;
-  border-left: 4px solid #c33;
 }
 
 .submit-btn {
   width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
   padding: 12px;
   border-radius: 8px;
   font-size: 16px;
@@ -442,11 +551,31 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.submit-btn:hover::before {
+  left: 100%;
 }
 
 .submit-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
 }
 
 .submit-btn:disabled {
@@ -459,20 +588,20 @@ body {
 .modal-footer {
   padding: 0 25px 25px 25px;
   text-align: center;
-  border-top: 1px solid #eee;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 20px;
 }
 
 .modal-footer p {
   margin: 0;
-  color: #666;
+  color: #a0aec0;
   font-size: 14px;
 }
 
 .switch-mode-btn {
   background: none;
   border: none;
-  color: #667eea;
+  color: #3b82f6;
   cursor: pointer;
   font-weight: 600;
   margin-left: 5px;
@@ -480,7 +609,7 @@ body {
 }
 
 .switch-mode-btn:hover {
-  color: #5a6fd8;
+  color: #60a5fa;
 }
 
 /* 钱包管理样式 */
@@ -500,23 +629,25 @@ body {
 }
 
 .active-wallet h3 {
-  color: #333;
+  color: #ffffff;
   margin-bottom: 15px;
   font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .create-wallet {
   margin-bottom: 30px;
   padding: 20px;
-  background: #f8f9fa;
-  border-radius: 10px;
-  border-left: 4px solid #28a745;
+  background: rgba(20, 35, 55, 0.5);
+  border-radius: 12px;
+  border-left: 3px solid rgba(16, 185, 129, 0.5);
 }
 
 .create-wallet h3 {
-  color: #333;
+  color: #ffffff;
   margin-bottom: 15px;
   font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .create-form {
@@ -528,21 +659,25 @@ body {
 .create-form input {
   flex: 1;
   padding: 10px 15px;
-  border: 2px solid #e1e5e9;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 27, 45, 0.5);
+  color: #ffffff;
   border-radius: 8px;
   font-size: 14px;
 }
 
 .create-form input:focus {
   outline: none;
-  border-color: #28a745;
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(15, 27, 45, 0.8);
 }
 
 .create-btn {
   padding: 10px 20px;
-  background: #28a745;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
+  backdrop-filter: blur(10px);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
@@ -551,21 +686,26 @@ body {
 }
 
 .create-btn:hover:not(:disabled) {
-  background: #218838;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .create-btn:disabled {
-  background: #ccc;
+  background: rgba(100, 116, 139, 0.3);
+  border-color: rgba(100, 116, 139, 0.5);
   cursor: not-allowed;
   transform: none;
+  opacity: 0.5;
 }
 
 .import-btn {
   padding: 10px 20px;
-  background: #007bff;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
+  backdrop-filter: blur(10px);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
@@ -575,8 +715,10 @@ body {
 }
 
 .import-btn:hover {
-  background: #0056b3;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* 导入钱包模态框样式 */
@@ -589,42 +731,45 @@ body {
 }
 
 .warning {
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 20px;
-  color: #856404;
+  color: #fbbf24;
   font-size: 14px;
 }
 
 .private-key-input {
   width: 100%;
   padding: 12px;
-  border: 2px solid #ddd;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 27, 45, 0.5);
+  color: #ffffff;
   border-radius: 8px;
   font-size: 14px;
   font-family: monospace;
   resize: vertical;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .private-key-input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(15, 27, 45, 0.8);
 }
 
 .private-key-input.valid {
-  border-color: #28a745;
+  border-color: rgba(16, 185, 129, 0.5);
 }
 
 .private-key-input.invalid {
-  border-color: #dc3545;
+  border-color: rgba(239, 68, 68, 0.5);
 }
 
 .input-hint {
   font-size: 12px;
-  color: #666;
+  color: #94a3b8;
   margin-top: 8px;
   line-height: 1.4;
 }
@@ -637,15 +782,15 @@ body {
 }
 
 .validation-message.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .validation-message.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .form-actions {
@@ -657,17 +802,21 @@ body {
 
 .cancel-btn {
   padding: 10px 20px;
-  background: #6c757d;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
+  backdrop-filter: blur(10px);
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .cancel-btn:hover {
-  background: #545b62;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .submit-btn {
@@ -691,14 +840,15 @@ body {
 }
 
 .wallets-list h3 {
-  color: #333;
+  color: #ffffff;
   margin-bottom: 15px;
   font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .no-wallets {
   text-align: center;
-  color: #666;
+  color: #a0aec0;
   padding: 40px;
   font-style: italic;
 }
@@ -710,24 +860,24 @@ body {
 }
 
 .wallet-card {
-  background: white;
-  border: 2px solid #e1e5e9;
-  border-radius: 10px;
+  background: rgba(30, 47, 71, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   padding: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  backdrop-filter: blur(10px);
 }
 
 .wallet-card:hover {
-  border-color: #667eea;
+  border-color: rgba(59, 130, 246, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .wallet-card.active {
-  border-color: #28a745;
-  background: #f8fff9;
+  border-color: rgba(16, 185, 129, 0.5);
 }
 
 .wallet-info {
@@ -736,21 +886,22 @@ body {
 
 .wallet-name {
   font-weight: 600;
-  color: #333;
+  color: #ffffff;
   margin-bottom: 8px;
   font-size: 16px;
 }
 
 .wallet-address {
-  color: #666;
+  color: #94a3b8;
   font-family: 'Courier New', monospace;
   font-size: 12px;
+  font-weight: 600;
   word-break: break-all;
   margin-bottom: 5px;
 }
 
 .wallet-date {
-  color: #999;
+  color: #64748b;
   font-size: 12px;
 }
 
@@ -762,7 +913,7 @@ body {
 }
 
 .wallet-status {
-  color: #28a745;
+  color: #10b981;
   font-weight: 600;
   font-size: 12px;
   margin-right: auto;
@@ -779,33 +930,45 @@ body {
 }
 
 .export-btn {
-  background: #667eea;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
+  backdrop-filter: blur(10px);
 }
 
 .export-btn:hover {
-  background: #5a6fd8;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .switch-btn {
-  background: #28a745;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
+  backdrop-filter: blur(10px);
 }
 
 .switch-btn:hover {
-  background: #218838;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .delete-btn {
-  background: #dc3545;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
+  backdrop-filter: blur(10px);
 }
 
 .delete-btn:hover {
-  background: #c82333;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* 私钥显示模态框样式 */
@@ -816,10 +979,12 @@ body {
 /* 定投模块样式 */
 .dca-section {
   margin: 20px 0;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  background: rgba(30, 47, 71, 0.5);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .dca-header {
@@ -828,30 +993,34 @@ body {
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 15px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dca-header h2 {
   margin: 0;
-  color: #333;
+  color: #ffffff;
   font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .dca-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .dca-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
 }
 
 .dca-plans-grid {
@@ -864,7 +1033,7 @@ body {
 .no-dca-plans {
   text-align: center;
   padding: 40px 20px;
-  color: #666;
+  color: #a0aec0;
   grid-column: 1 / -1;
 }
 
@@ -874,39 +1043,42 @@ body {
 }
 
 .create-dca-btn {
-  background: #28a745;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
   padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 500;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .create-dca-btn:hover {
-  background: #218838;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
 }
 
 .dca-plan-card {
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
-  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
   transition: all 0.3s ease;
   position: relative;
+  backdrop-filter: blur(10px);
 }
 
 .dca-plan-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .dca-plan-card.active {
-  border-color: #28a745;
-  background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
+  border-color: rgba(16, 185, 129, 0.5);
 }
 
 .dca-plan-header {
@@ -918,8 +1090,9 @@ body {
 
 .dca-plan-header h3 {
   margin: 0;
-  color: #333;
+  color: #ffffff;
   font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .dca-status {
@@ -952,18 +1125,18 @@ body {
 
 .dca-label {
   font-weight: 500;
-  color: #666;
+  color: #a0aec0;
 }
 
 .dca-value {
-  color: #333;
+  color: #ffffff;
   font-weight: 600;
 }
 
 .dca-address {
   font-family: 'Courier New', monospace;
   font-size: 12px;
-  color: #666;
+  color: #94a3b8;
   word-break: break-all;
 }
 
@@ -974,53 +1147,120 @@ body {
 }
 
 .dca-action-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .dca-action-btn:hover {
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.start-btn {
-  background: #28a745;
+.dca-action-btn.start-btn,
+.dca-action-btn.transactions-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.dca-action-btn.start-btn:hover,
+.dca-action-btn.transactions-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.dca-action-btn.stop-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.dca-action-btn.stop-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.dca-action-btn.edit-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.dca-action-btn.edit-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.dca-action-btn.withdraw-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.dca-action-btn.withdraw-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.dca-action-btn.delete-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.dca-action-btn.delete-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.strategy-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.strategy-badge.traditional {
+  background: #6b7280;
   color: white;
 }
 
-.start-btn:hover {
-  background: #218838;
-}
-
-.stop-btn {
-  background: #dc3545;
+.strategy-badge.bucket {
+  background: #60a5fa;
   color: white;
 }
 
-.stop-btn:hover {
-  background: #c82333;
+.expected-return {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+  font-weight: 500;
 }
 
-.edit-btn {
-  background: #ffc107;
-  color: #212529;
-}
-
-.edit-btn:hover {
-  background: #e0a800;
-}
-
-.delete-btn {
-  background: #6c757d;
+.execution-count {
+  display: inline-block;
+  background: #60a5fa;
   color: white;
-}
-
-.delete-btn:hover {
-  background: #5a6268;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 8px;
 }
 
 /* 定投模态框样式 */
@@ -1050,27 +1290,36 @@ body {
   align-items: center;
   padding: 15px;
   margin-bottom: 10px;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.dca-plan-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .dca-plan-info h3 {
   margin: 0 0 5px 0;
-  color: #333;
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .dca-plan-info p {
   margin: 2px 0;
-  color: #666;
+  color: #94a3b8;
   font-size: 14px;
 }
 
 .dca-plan-info .dca-address {
   font-family: 'Courier New', monospace;
   font-size: 12px;
-  color: #999;
+  color: #64748b;
   word-break: break-all;
+  font-weight: 600;
 }
 
 /* 定投表单样式 */
@@ -1086,23 +1335,84 @@ body {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #333;
+  color: #e2e8f0;
+}
+
+.swap-hint {
+  font-size: 13px;
+  color: #ffffff;
+  margin-top: 8px;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.swap-info-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.swap-info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.swap-info-row span {
+  color: #ffffff;
+}
+
+.swap-info-row .highlight {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.swap-info-note {
+  font-size: 13px;
+  color: #ffffff;
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid rgba(59, 130, 246, 0.5);
+}
+
+.checkbox-text {
+  color: #ffffff;
+  margin-left: 8px;
+}
+
+.address-hint {
+  font-size: 13px;
+  color: #ffffff;
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid rgba(59, 130, 246, 0.5);
+  line-height: 1.5;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
   padding: 12px;
-  border: 2px solid #e9ecef;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 27, 45, 0.5);
+  color: #ffffff;
   border-radius: 8px;
   font-size: 16px;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(15, 27, 45, 0.8);
 }
 
 .form-actions {
@@ -1113,9 +1423,10 @@ body {
 }
 
 .cancel-btn {
-  background: #6c757d;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
+  backdrop-filter: blur(10px);
   padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
@@ -1125,14 +1436,17 @@ body {
 }
 
 .cancel-btn:hover {
-  background: #5a6268;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
+  backdrop-filter: blur(10px);
   padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
@@ -1142,8 +1456,10 @@ body {
 }
 
 .submit-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .private-key-content {
@@ -1151,12 +1467,12 @@ body {
 }
 
 .warning {
-  background: #fff3cd;
-  color: #856404;
+  background: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
-  border-left: 4px solid #ffc107;
+  border-left: 3px solid #fbbf24;
   font-weight: 500;
 }
 
@@ -1170,19 +1486,21 @@ body {
   width: 100%;
   height: 120px;
   padding: 15px;
-  border: 2px solid #e1e5e9;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 27, 45, 0.5);
+  color: #ffffff;
   border-radius: 8px;
   font-family: 'Courier New', monospace;
   font-size: 12px;
   resize: none;
-  background: #f8f9fa;
 }
 
 .copy-btn {
   padding: 12px 24px;
-  background: #28a745;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
+  backdrop-filter: blur(10px);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
@@ -1192,23 +1510,31 @@ body {
 }
 
 .copy-btn:hover {
-  background: #218838;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* 执行计数样式 */
-.execution-count {
+.execution-count-detail {
   border-top: 1px solid #eee;
   padding-top: 8px;
   margin-top: 8px;
 }
 
 .count-badge {
-  background: #007bff;
+  background: linear-gradient(135deg, #87CEEB 0%, #5B9BD5 100%);
   color: white;
-  padding: 2px 8px;
+  padding: 4px 12px;
   border-radius: 12px;
   font-size: 0.8rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.dca-detail.execution-count .dca-label {
+  color: #ffffff;
   font-weight: 600;
 }
 
@@ -1220,19 +1546,20 @@ body {
 }
 
 .execution-count-badge {
-  background: #28a745;
+  background: linear-gradient(135deg, #87CEEB 0%, #5B9BD5 100%);
   color: white;
-  padding: 2px 8px;
+  padding: 4px 12px;
   border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* 交易记录相关样式 */
 .transactions-btn {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
   padding: 8px 16px;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -1241,28 +1568,34 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+  backdrop-filter: blur(10px);
 }
 
 .transactions-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
 .view-all-transactions-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
   padding: 10px 20px;
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-left: 10px;
+  backdrop-filter: blur(10px);
 }
 
 .view-all-transactions-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
 /* 交易记录模态框样式 */
@@ -1296,11 +1629,12 @@ body {
 }
 
 .transaction-item {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 12px;
   padding: 20px;
   transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
 }
 
 .transaction-item:hover {
@@ -1530,18 +1864,18 @@ body {
 }
 
 .strategy-badge.none {
-  background: #6b7280;
+  background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);
   color: white;
 }
 
 .strategy-badge.low {
-  background: #10b981;
+  background: linear-gradient(135deg, #87CEEB 0%, #5B9BD5 100%);
   color: white;
 }
 
 .strategy-badge.medium {
-  background: #f59e0b;
-  color: white;
+  background: linear-gradient(135deg, #FFD93D 0%, #FFB800 100%);
+  color: #212529;
 }
 
 .expected-return {
@@ -1562,8 +1896,8 @@ body {
 }
 
 .strategy-info {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(20, 35, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 12px;
   margin-top: 8px;
@@ -1572,6 +1906,7 @@ body {
 .strategy-info p {
   margin: 4px 0;
   font-size: 13px;
+  color: #94a3b8;
 }
 
 .strategy-risk {
@@ -1587,23 +1922,25 @@ body {
 .form-group select {
   width: 100%;
   padding: 12px;
-  border: 2px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 27, 45, 0.5);
+  color: #ffffff;
   border-radius: 8px;
   font-size: 14px;
-  background: white;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .form-group select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(15, 27, 45, 0.8);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* 理财信息展示 */
 .dca-plan-card .bucket-strategy {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(20, 35, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 8px;
   margin-top: 8px;
@@ -1664,13 +2001,13 @@ body {
 
 /* 传统转账模式提示 */
 .form-group .address-required-notice {
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 8px;
   padding: 12px;
   margin-top: 8px;
   font-size: 13px;
-  color: #856404;
+  color: #fbbf24;
 }
 
 /* 响应式设计 */
@@ -1691,8 +2028,8 @@ body {
 }
 
 .token-description {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(20, 35, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 12px;
   margin-top: 8px;
@@ -1702,11 +2039,11 @@ body {
   margin: 0;
   font-size: 13px;
   line-height: 1.4;
-  color: #4b5563;
+  color: #94a3b8;
 }
 
 .token-description strong {
-  color: #1f2937;
+  color: #ffffff;
   font-weight: 600;
 }
 
@@ -1730,9 +2067,9 @@ body {
 
 /* 提币功能样式 */
 .withdraw-btn {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
   padding: 8px 16px;
   border-radius: 6px;
   font-size: 12px;
@@ -1740,10 +2077,12 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   margin-left: 8px;
+  backdrop-filter: blur(10px);
 }
 
 .withdraw-btn:hover {
-  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
 }
 
@@ -1759,8 +2098,8 @@ body {
 }
 
 .plan-info {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(20, 35, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 20px;
@@ -1768,13 +2107,13 @@ body {
 
 .plan-info h3 {
   margin: 0 0 8px 0;
-  color: #1f2937;
+  color: #ffffff;
   font-size: 18px;
 }
 
 .plan-info p {
   margin: 4px 0;
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 14px;
 }
 
@@ -1819,12 +2158,13 @@ body {
 }
 
 .token-symbol {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: rgba(20, 35, 55, 0.5);
+  color: #94a3b8;
   padding: 12px 16px;
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .amount-options {
@@ -1834,25 +2174,28 @@ body {
 }
 
 .amount-btn {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
 .amount-btn:hover {
-  background: #e5e7eb;
-  border-color: #9ca3af;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .withdraw-info {
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 8px;
   padding: 16px;
   margin-top: 20px;
@@ -1860,14 +2203,15 @@ body {
 
 .withdraw-info h4 {
   margin: 0 0 12px 0;
-  color: #92400e;
+  color: #fbbf24;
   font-size: 14px;
+  font-weight: 600;
 }
 
 .withdraw-info ul {
   margin: 0;
   padding-left: 20px;
-  color: #92400e;
+  color: #fbbf24;
   font-size: 13px;
   line-height: 1.5;
 }
@@ -1877,9 +2221,9 @@ body {
 }
 
 .modal-footer .withdraw-btn {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  border: none;
   padding: 12px 24px;
   border-radius: 8px;
   font-size: 14px;
@@ -1887,10 +2231,12 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   min-width: 120px;
+  backdrop-filter: blur(10px);
 }
 
 .modal-footer .withdraw-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
 }
 

@@ -8,6 +8,8 @@ const { exec } = require('child_process');
 const { promisify } = require('util');
 const { createClient } = require('@supabase/supabase-js');
 const BucketProtocolService = require('./bucket_protocol_service');
+const SwapService = require('./swap_service');
+const cetusSwap = require('./cetus_swap_integration');
 const { Transaction } = require('@mysten/sui/transactions');
 const { getFullnodeUrl, SuiClient } = require('@mysten/sui/client');
 const { Ed25519Keypair } = require('@mysten/sui.js/keypairs/ed25519');
@@ -31,6 +33,9 @@ const supabase = createClient(
 
 // 初始化Bucket Protocol服务
 const bucketService = new BucketProtocolService();
+
+// 初始化Swap服务
+const swapService = new SwapService();
 
 // 中间件配置
 app.use(cors());
@@ -68,11 +73,55 @@ const authenticateToken = (req, res, next) => {
 // 加密/解密函数
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-32-chars!!'; // 32字符密钥
 
+// 辅助函数：从各种格式的私钥创建 Ed25519Keypair
+function createKeypairFromPrivateKey(privateKey) {
+  // 如果已经是 Ed25519Keypair，直接返回
+  if (privateKey && typeof privateKey.sign === 'function') {
+    return privateKey;
+  }
+  
+  // 如果是字符串
+  if (typeof privateKey === 'string') {
+    const trimmed = privateKey.trim();
+    
+    // 如果是 Sui 格式（suiprivkey1...）
+    if (trimmed.startsWith('suiprivkey1')) {
+      // 直接使用 decodeSuiPrivateKey 然后创建 keypair
+      const { decodeSuiPrivateKey } = require('@mysten/sui.js/cryptography');
+      const decoded = decodeSuiPrivateKey(trimmed);
+      // decoded.secretKey 是 Uint8Array
+      return Ed25519Keypair.fromSecretKey(decoded.secretKey);
+    }
+    
+    // 如果是十六进制字符串（0x 开头或纯十六进制）
+    if (trimmed.startsWith('0x') || /^[0-9a-fA-F]+$/.test(trimmed)) {
+      const hex = trimmed.startsWith('0x') ? trimmed.slice(2) : trimmed;
+      // 确保是 64 个字符（32 字节）
+      if (hex.length === 64) {
+        const secretKeyBytes = new Uint8Array(Buffer.from(hex, 'hex'));
+        return Ed25519Keypair.fromSecretKey(secretKeyBytes);
+      }
+    }
+  }
+  
+  // 如果是 Uint8Array
+  if (privateKey instanceof Uint8Array) {
+    return Ed25519Keypair.fromSecretKey(privateKey);
+  }
+  
+  // 如果是 Buffer
+  if (Buffer.isBuffer(privateKey)) {
+    return Ed25519Keypair.fromSecretKey(new Uint8Array(privateKey));
+  }
+  
+  throw new Error(`不支持的私钥格式: ${typeof privateKey}`);
+}
+
 // 使用Sui SDK构建和发送交易（支持不同代币类型）
 async function buildAndSendTransferTx(privateKey, recipient, amount = 1000000, tokenType = 'SUI') {
   try {
     // 1. 创建密钥对
-    const keypair = Ed25519Keypair.fromSecretKey(privateKey);
+    const keypair = createKeypairFromPrivateKey(privateKey);
     const senderAddress = keypair.getPublicKey().toSuiAddress();
     
     console.log('创建密钥对成功:', senderAddress);
@@ -80,6 +129,7 @@ async function buildAndSendTransferTx(privateKey, recipient, amount = 1000000, t
     
     // 2. 创建交易
     const tx = new Transaction();
+    tx.setSender(senderAddress);
     
     // 3. 根据代币类型添加转账操作
     if (tokenType === 'SUI') {
@@ -117,10 +167,26 @@ async function buildAndSendTransferTx(privateKey, recipient, amount = 1000000, t
     
     console.log('交易构建完成，开始发送...');
     
-    // 4. 签名并执行交易
-    const result = await suiClient.signAndExecuteTransaction({
-      signer: keypair,
-      transaction: tx
+    // 4. 构建交易字节
+    const txBytes = await tx.build({ client: suiClient });
+    console.log('交易字节已构建, 长度:', txBytes.length);
+    
+    // 5. 签名交易
+    const signedTx = await keypair.signTransactionBlock(txBytes);
+    console.log('签名完成:', {
+      hasTransactionBlockBytes: !!signedTx.transactionBlockBytes,
+      hasBytes: !!signedTx.bytes,
+      signature: signedTx.signature
+    });
+    
+    // 6. 执行交易 - 使用正确的字段
+    const result = await suiClient.executeTransactionBlock({
+      transactionBlock: txBytes,  // 直接使用构建的字节
+      signature: signedTx.signature,
+      options: {
+        showEffects: true,
+        showObjectChanges: true,
+      }
     });
     
     console.log('交易发送成功:', result.digest);
@@ -128,6 +194,7 @@ async function buildAndSendTransferTx(privateKey, recipient, amount = 1000000, t
     return {
       digest: result.digest,
       effects: result.effects,
+      objectChanges: result.objectChanges,
       address: senderAddress
     };
     
@@ -234,11 +301,11 @@ app.post('/api/register', async (req, res) => {
       return res.status(500).json({ error: '注册失败' });
     }
 
-    // 生成JWT令牌
+    // 生成JWT令牌（7天有效期）
     const token = jwt.sign(
       { userId: newUser.id, username: newUser.username },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '7d' }
     );
 
     res.json({
@@ -282,11 +349,11 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ error: '用户名或密码错误' });
     }
 
-    // 生成JWT令牌
+    // 生成JWT令牌（7天有效期）
     const token = jwt.sign(
       { userId: user.id, username: user.username },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '7d' }
     );
 
     res.json({
@@ -561,6 +628,12 @@ app.get('/api/dca-plans', authenticateToken, async (req, res) => {
       return res.status(500).json({ error: '获取定投计划失败' });
     }
 
+    // 统计活跃计划
+    const activePlans = data ? data.filter(plan => plan.is_active === true) : [];
+    if (activePlans.length > 0) {
+      console.log(`🟢 找到 ${activePlans.length} 个活跃定投计划`);
+    }
+
     res.json({ dcaPlans: data });
 
   } catch (error) {
@@ -571,15 +644,47 @@ app.get('/api/dca-plans', authenticateToken, async (req, res) => {
 
 app.post('/api/dca-plans', authenticateToken, async (req, res) => {
   try {
-    const { planName, tokenSymbol, amount, targetAddress, bucketStrategy } = req.body;
+    const { 
+      planName, 
+      tokenSymbol, 
+      amount, 
+      targetAddress, 
+      bucketStrategy,
+      enableSwap,
+      targetTokenSymbol,
+      slippage
+    } = req.body;
 
     if (!planName || !tokenSymbol || !amount || !bucketStrategy) {
       return res.status(400).json({ error: '计划名称、币种、数量和策略都是必填项' });
     }
 
     // 传统转账模式需要接收地址
-    if (bucketStrategy === 'NONE' && !targetAddress) {
+    if (bucketStrategy === 'NONE' && !enableSwap && !targetAddress) {
       return res.status(400).json({ error: '传统转账模式需要填写接收地址' });
+    }
+
+    // 如果启用 swap，验证目标币种
+    if (enableSwap) {
+      if (!targetTokenSymbol) {
+        return res.status(400).json({ error: '启用 Swap 时必须指定目标币种' });
+      }
+      if (tokenSymbol === targetTokenSymbol) {
+        return res.status(400).json({ error: '源币种和目标币种不能相同' });
+      }
+    }
+
+    // 根据策略设置正确的目标地址
+    let finalTargetAddress;
+    if (bucketStrategy === 'NONE') {
+      // 传统转账模式：必须使用用户提供的地址
+      if (!targetAddress) {
+        return res.status(400).json({ error: '传统转账模式必须提供有效的接收地址' });
+      }
+      finalTargetAddress = targetAddress;
+    } else {
+      // Bucket理财模式：使用协议地址
+      finalTargetAddress = 'bucket-protocol';
     }
 
     const { data, error } = await supabase
@@ -589,8 +694,11 @@ app.post('/api/dca-plans', authenticateToken, async (req, res) => {
         plan_name: planName,
         token_symbol: tokenSymbol,
         amount: parseFloat(amount),
-        target_address: targetAddress || 'bucket-protocol',
+        target_address: finalTargetAddress,
         bucket_strategy: bucketStrategy,
+        enable_swap: enableSwap || false,
+        target_token_symbol: enableSwap ? targetTokenSymbol : tokenSymbol,
+        slippage: slippage || 0.01,
         is_active: false,
         created_at: new Date().toISOString()
       }])
@@ -616,7 +724,16 @@ app.post('/api/dca-plans', authenticateToken, async (req, res) => {
 app.put('/api/dca-plans/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { planName, tokenSymbol, amount, targetAddress, bucketStrategy } = req.body;
+    const { 
+      planName, 
+      tokenSymbol, 
+      amount, 
+      targetAddress, 
+      bucketStrategy,
+      enableSwap,
+      targetTokenSymbol,
+      slippage
+    } = req.body;
 
     const updateData = {};
     if (planName !== undefined) updateData.plan_name = planName;
@@ -624,6 +741,9 @@ app.put('/api/dca-plans/:id', authenticateToken, async (req, res) => {
     if (amount !== undefined) updateData.amount = parseFloat(amount);
     if (targetAddress !== undefined) updateData.target_address = targetAddress;
     if (bucketStrategy !== undefined) updateData.bucket_strategy = bucketStrategy;
+    if (enableSwap !== undefined) updateData.enable_swap = enableSwap;
+    if (targetTokenSymbol !== undefined) updateData.target_token_symbol = targetTokenSymbol;
+    if (slippage !== undefined) updateData.slippage = slippage;
 
     const { data, error } = await supabase
       .from('dca_plans')
@@ -1045,6 +1165,48 @@ app.post('/api/bucket/execute-dca', authenticateToken, async (req, res) => {
   }
 });
 
+// Swap 相关API
+app.post('/api/swap/estimate', authenticateToken, async (req, res) => {
+  try {
+    const { fromToken, toToken, amount } = req.body;
+
+    if (!fromToken || !toToken || !amount) {
+      return res.status(400).json({ error: '源币种、目标币种和数量都是必填项' });
+    }
+
+    const estimation = await swapService.estimateSwap(fromToken, toToken, parseFloat(amount));
+    
+    if (estimation.success) {
+      res.json(estimation);
+    } else {
+      res.status(400).json({ error: estimation.error || 'Swap 预估失败' });
+    }
+
+  } catch (error) {
+    console.error('Swap 预估异常:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
+});
+
+app.get('/api/swap/price/:tokenSymbol', authenticateToken, async (req, res) => {
+  try {
+    const { tokenSymbol } = req.params;
+    const { baseToken = 'USDB' } = req.query;
+
+    const priceInfo = await swapService.getTokenPrice(tokenSymbol, baseToken);
+    
+    if (priceInfo.success) {
+      res.json(priceInfo);
+    } else {
+      res.status(400).json({ error: priceInfo.error || '获取价格失败' });
+    }
+
+  } catch (error) {
+    console.error('获取代币价格异常:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
+});
+
 // 交易记录API
 app.get('/api/transactions', authenticateToken, async (req, res) => {
   try {
@@ -1124,19 +1286,80 @@ app.post('/api/sensor/trigger-dca', authenticateToken, async (req, res) => {
     console.log('传感器计数增加，开始执行DCA...');
     
     // 1. 获取当前用户的所有活跃DCA计划
-    const { data: activePlans, error: plansError } = await supabase
+    console.log(`🔍 查询用户 ${req.user.userId} 的活跃DCA计划...`);
+    
+    // 查询用户的所有计划（用于调试）
+    const { data: allPlans, error: allPlansError } = await supabase
+      .from('dca_plans')
+      .select('*')
+      .eq('user_id', req.user.userId);
+    
+    if (allPlansError) {
+      console.error('查询所有计划错误:', allPlansError);
+    } else {
+      const userActivePlans = allPlans ? allPlans.filter(plan => plan.is_active === true) : [];
+      console.log(`📊 用户 ${req.user.userId} 有 ${allPlans ? allPlans.length : 0} 个计划，其中 ${userActivePlans.length} 个活跃`);
+    }
+    
+    // 尝试多种查询方式
+    let activePlans = null;
+    let plansError = null;
+    
+    // 方式1: 布尔值 true
+    const { data: activePlansBool, error: boolError } = await supabase
       .from('dca_plans')
       .select('*')
       .eq('user_id', req.user.userId)
       .eq('is_active', true);
+    
+    if (!boolError && activePlansBool && activePlansBool.length > 0) {
+      console.log(`✅ 布尔值查询成功: 找到 ${activePlansBool.length} 个活跃计划`);
+      activePlans = activePlansBool;
+    } else {
+      console.log('❌ 布尔值查询失败，尝试字符串查询...');
+      
+      // 方式2: 字符串 'true'
+      const { data: activePlansString, error: stringError } = await supabase
+        .from('dca_plans')
+        .select('*')
+        .eq('user_id', req.user.userId)
+        .eq('is_active', 'true');
+      
+      if (!stringError && activePlansString && activePlansString.length > 0) {
+        console.log(`✅ 字符串查询成功: 找到 ${activePlansString.length} 个活跃计划`);
+        activePlans = activePlansString;
+      } else {
+        console.log('❌ 字符串查询也失败，尝试直接查询所有计划...');
+        
+        // 方式3: 查询所有计划然后过滤
+        const { data: allUserPlans, error: allError } = await supabase
+          .from('dca_plans')
+          .select('*')
+          .eq('user_id', req.user.userId);
+        
+        if (!allError && allUserPlans) {
+          const filteredPlans = allUserPlans.filter(plan => 
+            plan.is_active === true || plan.is_active === 'true' || plan.is_active === 1
+          );
+          console.log(`✅ 过滤查询成功: 找到 ${filteredPlans.length} 个活跃计划`);
+          activePlans = filteredPlans;
+        } else {
+          plansError = allError;
+        }
+      }
+    }
 
     if (plansError) {
       console.error('获取活跃DCA计划错误:', plansError);
       return res.status(500).json({ error: '获取DCA计划失败' });
     }
 
+    if (activePlans && activePlans.length > 0) {
+      console.log(`✅ 找到 ${activePlans.length} 个活跃DCA计划，开始执行...`);
+    }
+
     if (!activePlans || activePlans.length === 0) {
-      console.log('没有活跃的DCA计划');
+      console.log('❌ 所有查询方式都没有找到活跃的DCA计划');
       return res.json({ message: '没有活跃的DCA计划', executed: 0 });
     }
 
@@ -1341,7 +1564,11 @@ async function monitorDcaExecutionCounts() {
           amount,
           target_address,
           bucket_strategy,
-          is_active
+          is_active,
+          enable_swap,
+          target_token_symbol,
+          slippage,
+          swap_pool_address
         )
       `)
       .eq('dca_plans.is_active', true);
@@ -1352,10 +1579,7 @@ async function monitorDcaExecutionCounts() {
     }
 
     if (!plans || plans.length === 0) {
-      // 只在第一次没有计划时显示，避免重复日志
-      if (lastExecutionCounts.size === 0) {
-        console.log('📋 没有活跃的DCA计划');
-      }
+      // 没有活跃的DCA计划，静默返回
       return;
     }
 
@@ -1408,25 +1632,72 @@ async function executeDcaTransaction(executionRecord) {
   const privateKey = decrypt(wallet.private_key);
 
   let result;
+  let finalTokenSymbol = plan.token_symbol;
+  let finalAmount = plan.amount;
   
   // 根据理财策略执行不同的交易
   if (plan.bucket_strategy === 'NONE') {
-    // 传统转账
-    let amount, tokenType;
-    if (plan.token_symbol === 'USDB') {
-      amount = Math.floor(plan.amount * 1000000); // USDB精度6位
-      tokenType = 'USDB';
-    } else {
-      amount = Math.floor(plan.amount * 1000000000); // SUI精度9位
-      tokenType = 'SUI';
+    // 传统转账模式
+    
+    // 验证目标地址
+    if (!plan.target_address || plan.target_address === 'bucket-protocol') {
+      throw new Error('传统转账模式需要有效的接收地址');
     }
     
-    result = await buildAndSendTransferTx(
-      privateKey,
-      plan.target_address,
-      amount,
-      tokenType
-    );
+    console.log(`📋 执行定投计划: ${plan.plan_name} (${plan.token_symbol} ${plan.amount})`);
+    
+    // 检查是否启用 Swap
+    console.log(`🔍 检查 Swap 配置: enable_swap=${plan.enable_swap}, target_token_symbol=${plan.target_token_symbol}, token_symbol=${plan.token_symbol}`);
+    if (plan.enable_swap && plan.target_token_symbol && plan.token_symbol !== plan.target_token_symbol) {
+      console.log(`🔄 启用 Swap: ${plan.token_symbol} → ${plan.target_token_symbol}`);
+      
+      try {
+        console.log(`🔧 开始执行 Swap: ${plan.token_symbol} → ${plan.target_token_symbol}, 数量: ${plan.amount}, 滑点: ${plan.slippage}`);
+        
+        // 使用 Cetus Aggregator 执行 Swap + 转账
+        const swapResult = await cetusSwap.swapAndTransfer(
+          privateKey,
+          plan.token_symbol,
+          plan.target_token_symbol,
+          plan.amount,
+          plan.target_address,
+          plan.slippage || 0.01
+        );
+        
+        console.log(`📊 Swap 结果:`, JSON.stringify(swapResult, null, 2));
+        
+        if (swapResult && swapResult.success) {
+          result = swapResult;
+          finalTokenSymbol = plan.target_token_symbol;
+          finalAmount = swapResult.amountOut; // 使用实际兑换后的数量
+          console.log(`✅ Swap 成功: ${plan.amount} ${plan.token_symbol} → ${finalAmount} ${finalTokenSymbol}`);
+        } else {
+          throw new Error(swapResult?.error || 'Swap 执行失败 - 无返回结果');
+        }
+      } catch (swapError) {
+        console.error('❌ Swap 执行失败:', swapError);
+        console.error('❌ Swap 错误详情:', swapError.stack);
+        throw new Error(`Swap 失败: ${swapError.message}`);
+      }
+    } else {
+      // 传统转账（不使用 Swap）
+      console.log(`📤 执行传统转账: ${plan.token_symbol} ${plan.amount} → ${plan.target_address}`);
+      let amount, tokenType;
+      if (plan.token_symbol === 'USDB') {
+        amount = Math.floor(plan.amount * 1000000); // USDB精度6位
+        tokenType = 'USDB';
+      } else {
+        amount = Math.floor(plan.amount * 1000000000); // SUI精度9位
+        tokenType = 'SUI';
+      }
+      
+      result = await buildAndSendTransferTx(
+        privateKey,
+        plan.target_address,
+        amount,
+        tokenType
+      );
+    }
   } else {
     // Bucket理财策略
     result = await bucketService.executeSavingPoolDCA(
@@ -1446,10 +1717,12 @@ async function executeDcaTransaction(executionRecord) {
       user_id: plan.user_id,
       wallet_address: wallet.address,
       recipient_address: plan.bucket_strategy === 'NONE' ? plan.target_address : 'bucket-protocol',
-      amount: plan.amount,
-      token_symbol: plan.token_symbol,
-      transaction_type: plan.bucket_strategy === 'NONE' ? 'dca_investment' : 'bucket_investment',
-      tx_hash: result.digest || result.hash,
+      amount: finalAmount,
+      token_symbol: finalTokenSymbol,
+      transaction_type: plan.bucket_strategy === 'NONE' ? 
+        (plan.enable_swap ? 'dca_swap_investment' : 'dca_investment') : 
+        'bucket_investment',
+      tx_hash: result.digest || result.hash || result.txHash,
       status: 'confirmed',
       created_at: new Date().toISOString()
     }]);

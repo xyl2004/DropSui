@@ -46,9 +46,16 @@ function App() {
     tokenSymbol: 'USDB',
     amount: '',
     targetAddress: '',
-    bucketStrategy: 'NONE' // 添加理财策略字段
+    bucketStrategy: 'NONE', // 添加理财策略字段
+    enableSwap: false, // 是否启用兑换
+    targetTokenSymbol: 'SUI', // 目标币种
+    slippage: 0.01 // 滑点容忍度
   })
   const [editingDca, setEditingDca] = useState(null)
+  
+  // Swap 预估相关状态
+  const [swapEstimation, setSwapEstimation] = useState(null)
+  const [swapEstimating, setSwapEstimating] = useState(false)
   
   // Bucket Protocol 理财相关状态
   const [bucketStrategies, setBucketStrategies] = useState({})
@@ -70,6 +77,9 @@ function App() {
   const [dcaExecutionCounts, setDcaExecutionCounts] = useState([])
   // 已执行次数状态
   const [executedCounts, setExecutedCounts] = useState({})
+  
+  // APR 相关状态
+  const [aprLoading, setAprLoading] = useState(false)
   
   // 交易记录相关状态
   const [showTransactionsModal, setShowTransactionsModal] = useState(false)
@@ -111,6 +121,22 @@ function App() {
     } catch (error) {
       console.error('获取已执行次数失败:', error)
     }
+  }
+
+  // 获取真实APR数据 - 使用与投资计划相同的预期收益数据
+  const getDisplayAPR = () => {
+    // 如果有预期收益数据，使用预期收益
+    if (expectedReturn?.annualReturn) {
+      return parseFloat(expectedReturn.annualReturn.replace('%', ''))
+    }
+    
+    // 如果没有预期收益数据，使用储蓄池策略的APR
+    if (bucketStrategies.savingPools && bucketStrategies.savingPools.sUSDB) {
+      return bucketStrategies.savingPools.sUSDB.apr || 0
+    }
+    
+    // 最后使用默认值
+    return 15.15
   }
 
   // 获取定投记录
@@ -458,9 +484,56 @@ function App() {
     setWithdrawSuccess(null)
   }
 
+  // Swap 相关函数（简化版本，不进行价格预估）
+  const estimateSwap = async (fromToken, toToken, amount) => {
+    // 简化处理：不进行实际的价格预估
+    console.log(`🔄 Swap 功能已启用: ${fromToken} → ${toToken}, 数量: ${amount}`);
+    setSwapEstimation(null);
+  }
 
   // 认证相关函数
   const API_BASE_URL = 'http://localhost:5001/api'
+
+  // 处理 Token 过期的统一函数
+  const handleTokenExpired = () => {
+    console.warn('⚠️ Token 已过期，正在退出登录...')
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setUser(null)
+    setShowAuthModal(true)
+    setAuthMode('login')
+    alert('登录已过期，请重新登录')
+  }
+
+  // 统一的 API 请求函数（带 token 过期处理）
+  const fetchWithAuth = async (url, options = {}) => {
+    const token = localStorage.getItem('token')
+    const headers = {
+      ...options.headers,
+      'Authorization': `Bearer ${token}`
+    }
+
+    try {
+      const response = await fetch(url, { ...options, headers })
+      
+      // 检查是否是 token 过期错误（401 或 403）
+      if (response.status === 401 || response.status === 403) {
+        const data = await response.json()
+        if (data.error && (data.error.includes('过期') || data.error.includes('expired'))) {
+          handleTokenExpired()
+          throw new Error('Token 已过期')
+        }
+      }
+      
+      return response
+    } catch (error) {
+      // 如果是网络错误，正常抛出
+      if (!error.message.includes('Token 已过期')) {
+        throw error
+      }
+      throw error
+    }
+  }
 
   const handleAuth = async (e) => {
     e.preventDefault()
@@ -537,12 +610,7 @@ function App() {
     if (!user) return
     
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/wallets`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await fetchWithAuth(`${API_BASE_URL}/wallets`)
       
       if (response.ok) {
         const data = await response.json()
@@ -786,12 +854,7 @@ function App() {
   const fetchDcaPlans = async () => {
     try {
       setDcaLoading(true)
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_BASE_URL}/dca-plans`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await fetchWithAuth(`${API_BASE_URL}/dca-plans`)
 
       if (response.ok) {
         const data = await response.json()
@@ -805,7 +868,9 @@ function App() {
       }
     } catch (error) {
       console.error('获取定投计划失败:', error)
-      setDcaError('网络错误，请稍后重试')
+      if (!error.message.includes('Token 已过期')) {
+        setDcaError('网络错误，请稍后重试')
+      }
     } finally {
       setDcaLoading(false)
     }
@@ -813,9 +878,15 @@ function App() {
 
   const createDcaPlan = async () => {
     try {
-      // 验证：传统转账模式需要接收地址，Bucket理财模式不需要
+      // 验证：传统转账模式需要接收地址（包括启用swap的情况），Bucket理财模式不需要
       if (newDcaPlan.bucketStrategy === 'NONE' && !newDcaPlan.targetAddress.trim()) {
         setDcaError('传统转账模式需要填写接收地址')
+        return
+      }
+      
+      // 如果启用 swap，验证源币种和目标币种不同
+      if (newDcaPlan.enableSwap && newDcaPlan.tokenSymbol === newDcaPlan.targetTokenSymbol) {
+        setDcaError('源币种和目标币种不能相同')
         return
       }
       
@@ -830,14 +901,27 @@ function App() {
           ...newDcaPlan,
           bucketStrategy: newDcaPlan.bucketStrategy,
           // Bucket理财模式时，targetAddress设为空或Bucket协议地址
-          targetAddress: newDcaPlan.bucketStrategy === 'NONE' ? newDcaPlan.targetAddress : 'bucket-protocol'
+          targetAddress: newDcaPlan.bucketStrategy === 'NONE' ? newDcaPlan.targetAddress : 'bucket-protocol',
+          enableSwap: newDcaPlan.enableSwap,
+          targetTokenSymbol: newDcaPlan.enableSwap ? newDcaPlan.targetTokenSymbol : newDcaPlan.tokenSymbol,
+          slippage: newDcaPlan.slippage
         })
       })
 
       if (response.ok) {
         await fetchDcaPlans()
-        setNewDcaPlan({ planName: '', tokenSymbol: 'USDB', amount: '', targetAddress: '', bucketStrategy: 'NONE' })
+        setNewDcaPlan({ 
+          planName: '', 
+          tokenSymbol: 'USDB', 
+          amount: '', 
+          targetAddress: '', 
+          bucketStrategy: 'NONE',
+          enableSwap: false,
+          targetTokenSymbol: 'SUI',
+          slippage: 0.01
+        })
         setShowCreateDca(false)
+        setSwapEstimation(null)
       } else {
         const errorData = await response.json()
         setDcaError(errorData.error || '创建定投计划失败')
@@ -983,12 +1067,16 @@ function App() {
 
   return (
     <div className="app">
+      {/* 装饰元素 */}
+      <div className="wave-decoration"></div>
+      <div className="droplet-decoration"></div>
+      
       <header className="header">
         <div className="header-content">
-          <div className="header-title">
-        <h1>🔢 ESP32传感器实时监控</h1>
-        <p>实时显示TCRT5000传感器计数数据</p>
-          </div>
+        <div className="header-title">
+          <h1>DropSui</h1>
+          <p>Earn competitive yields on your stablecoins</p>
+        </div>
           <div className="header-auth">
             {user ? (
               <div className="user-info">
@@ -997,7 +1085,7 @@ function App() {
                   className="wallet-btn" 
                   onClick={() => setShowWalletModal(true)}
                 >
-                  💼 钱包管理
+                  钱包管理
                 </button>
                 <button className="logout-btn" onClick={handleLogout}>
                   退出登录
@@ -1046,17 +1134,35 @@ function App() {
       )}
 
       <main className="main">
+        <div className="count-card">
+          <div className="count-display">
+            <span className="count-number">
+              {aprLoading ? '...' : `${getDisplayAPR().toFixed(2)}%`}
+            </span>
+            <span className="count-label">储蓄年化收益率</span>
+          </div>
+
+          <div className="time-display">
+            <div className="time-label">当前路径</div>
+            <div className="time-value">直接存款 → sUSDB 池</div>
+          </div>
+
+          <div className="status-indicator">
+            <span className="status-dot"></span>
+            <span>运行中</span>
+          </div>
+        </div>
 
         {/* 定投模式模块 */}
         {user && (
           <div className="dca-section">
             <div className="dca-header">
-              <h2>📈 定投模式</h2>
+              <h2>定投计划</h2>
               <button 
                 className="dca-btn"
                 onClick={() => setShowDcaModal(true)}
               >
-                💼 管理定投
+                创建新计划
               </button>
             </div>
             
@@ -1064,12 +1170,9 @@ function App() {
               {dcaPlans.length === 0 ? (
                 <div className="no-dca-plans">
                   <p>暂无定投计划</p>
-                  <button 
-                    className="create-dca-btn"
-                    onClick={() => setShowCreateDca(true)}
-                  >
-                    创建定投计划
-                  </button>
+                  <p style={{ fontSize: '0.9rem', marginTop: '10px', opacity: 0.7 }}>
+                    创建您的第一个计划开始赚取收益
+                  </p>
                 </div>
               ) : (
                 dcaPlans.map((plan) => (
@@ -1082,14 +1185,35 @@ function App() {
                     </div>
                     
                     <div className="dca-plan-details">
-                      <div className="dca-detail">
-                        <span className="dca-label">币种:</span>
-                        <span className="dca-value">{plan.token_symbol}</span>
-                      </div>
-                      <div className="dca-detail">
-                        <span className="dca-label">数量:</span>
-                        <span className="dca-value">{plan.amount}</span>
-                      </div>
+                      {plan.enable_swap ? (
+                        <>
+                          <div className="dca-detail swap-info">
+                            <span className="dca-label">兑换模式:</span>
+                            <span className="dca-value swap-badge">
+                              🔄 {plan.token_symbol} → {plan.target_token_symbol}
+                            </span>
+                          </div>
+                          <div className="dca-detail">
+                            <span className="dca-label">源币种数量:</span>
+                            <span className="dca-value">{plan.amount} {plan.token_symbol}</span>
+                          </div>
+                          <div className="dca-detail">
+                            <span className="dca-label">滑点容忍度:</span>
+                            <span className="dca-value">{((plan.slippage || 0.01) * 100).toFixed(1)}%</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="dca-detail">
+                            <span className="dca-label">币种:</span>
+                            <span className="dca-value">{plan.token_symbol}</span>
+                          </div>
+                          <div className="dca-detail">
+                            <span className="dca-label">数量:</span>
+                            <span className="dca-value">{plan.amount}</span>
+                          </div>
+                        </>
+                      )}
                       <div className="dca-detail">
                         <span className="dca-label">地址:</span>
                         <span className="dca-address">{plan.target_address}</span>
@@ -1129,14 +1253,14 @@ function App() {
                         className="dca-action-btn transactions-btn"
                         onClick={() => openTransactionsModal(plan.id)}
                       >
-                        📋 定投记录
+                        定投记录
                       </button>
                       {plan.bucket_strategy !== 'NONE' && (
                         <button 
                           className="dca-action-btn withdraw-btn"
                           onClick={() => openWithdrawModal(plan)}
                         >
-                          💰 提取资金
+                          提取资金
                         </button>
                       )}
                       <button 
@@ -1261,7 +1385,7 @@ function App() {
           <div className="modal-overlay" onClick={() => setShowWalletModal(false)}>
             <div className="modal-content wallet-modal" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h2>💼 钱包管理</h2>
+                <h2>钱包管理</h2>
                 <button 
                   className="modal-close" 
                   onClick={() => setShowWalletModal(false)}
@@ -1306,7 +1430,7 @@ function App() {
                       onClick={() => setShowImportModal(true)}
                       className="import-btn"
                     >
-                      📥 导入私钥
+                      导入私钥
                     </button>
                   </div>
                   {walletError && (
@@ -1382,7 +1506,7 @@ function App() {
           <div className="modal-overlay" onClick={() => setShowPrivateKey(false)}>
             <div className="modal-content private-key-modal" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h2>🔑 私钥</h2>
+                <h2>私钥</h2>
                 <button 
                   className="modal-close" 
                   onClick={() => setShowPrivateKey(false)}
@@ -1418,7 +1542,7 @@ function App() {
             <div className="modal-overlay" onClick={() => setShowImportModal(false)}>
               <div className="modal-content import-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                  <h2>📥 导入私钥钱包</h2>
+                  <h2>导入私钥钱包</h2>
                   <button 
                     className="modal-close" 
                     onClick={() => {
@@ -1507,7 +1631,7 @@ function App() {
           <div className="modal-overlay" onClick={() => setShowDcaModal(false)}>
             <div className="modal-content dca-modal" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h2>📈 定投管理</h2>
+                <h2>定投管理</h2>
                 <button 
                   className="modal-close" 
                   onClick={() => setShowDcaModal(false)}
@@ -1522,13 +1646,13 @@ function App() {
                     className="create-dca-btn"
                     onClick={() => setShowCreateDca(true)}
                   >
-                    ➕ 创建定投计划
+                    创建定投计划
                   </button>
                   <button 
                     className="view-all-transactions-btn"
                     onClick={() => openTransactionsModal(null)}
                   >
-                    📋 查看所有交易记录
+                    查看所有交易记录
                   </button>
                 </div>
                 
@@ -1588,14 +1712,14 @@ function App() {
                               className="dca-action-btn transactions-btn"
                               onClick={() => openTransactionsModal(plan.id)}
                             >
-                              📋 定投记录
+                              定投记录
                             </button>
                             {plan.bucket_strategy !== 'NONE' && (
                               <button 
                                 className="dca-action-btn withdraw-btn"
                                 onClick={() => openWithdrawModal(plan)}
                               >
-                                💰 提取资金
+                                提取资金
                               </button>
                             )}
                             <button 
@@ -1630,7 +1754,7 @@ function App() {
           }}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h2>{editingDca ? '✏️ 编辑定投计划' : '➕ 创建定投计划'}</h2>
+                <h2>{editingDca ? '编辑定投计划' : '创建定投计划'}</h2>
                 <button 
                   className="modal-close" 
                   onClick={() => {
@@ -1712,13 +1836,117 @@ function App() {
                         setEditingDca({...editingDca, amount: e.target.value})
                       } else {
                         setNewDcaPlan({...newDcaPlan, amount: e.target.value})
+                        // 如果启用 swap 且有数量，自动预估
+                        if (newDcaPlan.enableSwap && e.target.value > 0) {
+                          estimateSwap(newDcaPlan.tokenSymbol, newDcaPlan.targetTokenSymbol, e.target.value)
+                        }
                       }
                     }}
                     placeholder="请输入定投数量"
                   />
                 </div>
                 
-                {/* 只有传统转账模式才需要接收地址 */}
+                {/* Swap 兑换选项（仅传统转账模式可用） */}
+                {(editingDca ? editingDca.bucket_strategy : newDcaPlan.bucketStrategy) === 'NONE' && (
+                  <div className="form-group swap-section">
+                    <div className="swap-toggle">
+                      <label className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={editingDca ? editingDca.enable_swap : newDcaPlan.enableSwap}
+                          onChange={(e) => {
+                            if (editingDca) {
+                              setEditingDca({...editingDca, enable_swap: e.target.checked})
+                            } else {
+                              setNewDcaPlan({...newDcaPlan, enableSwap: e.target.checked})
+                              if (e.target.checked && newDcaPlan.amount > 0) {
+                                estimateSwap(newDcaPlan.tokenSymbol, newDcaPlan.targetTokenSymbol, newDcaPlan.amount)
+                              } else {
+                                setSwapEstimation(null)
+                              }
+                            }
+                          }}
+                        />
+                        <span className="checkbox-text">🔄 启用代币兑换（Swap）</span>
+                      </label>
+                      <div className="swap-hint">
+                        启用后，系统将自动通过流动性池将源币种兑换为目标币种后再转账
+                      </div>
+                    </div>
+                    
+                    {(editingDca ? editingDca.enable_swap : newDcaPlan.enableSwap) && (
+                      <div className="swap-config">
+                        <div className="form-group">
+                          <label>目标币种 *</label>
+                          <select
+                            value={editingDca ? editingDca.target_token_symbol : newDcaPlan.targetTokenSymbol}
+                            onChange={(e) => {
+                              if (editingDca) {
+                                setEditingDca({...editingDca, target_token_symbol: e.target.value})
+                              } else {
+                                setNewDcaPlan({...newDcaPlan, targetTokenSymbol: e.target.value})
+                                if (newDcaPlan.amount > 0) {
+                                  estimateSwap(newDcaPlan.tokenSymbol, e.target.value, newDcaPlan.amount)
+                                }
+                              }
+                            }}
+                          >
+                            <option value="SUI">🟢 SUI</option>
+                            <option value="USDB">🏦 USDB</option>
+                            <option value="USDC">💵 USDC</option>
+                            <option value="USDT">💎 USDT</option>
+                          </select>
+                        </div>
+                        
+                        <div className="form-group">
+                          <label>滑点容忍度 (%)</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0.1"
+                            max="10"
+                            value={(editingDca ? editingDca.slippage : newDcaPlan.slippage) * 100}
+                            onChange={(e) => {
+                              const slippage = parseFloat(e.target.value) / 100
+                              if (editingDca) {
+                                setEditingDca({...editingDca, slippage})
+                              } else {
+                                setNewDcaPlan({...newDcaPlan, slippage})
+                              }
+                            }}
+                            placeholder="1"
+                          />
+                        </div>
+                        
+                        {/* Swap 功能说明 */}
+                        {!editingDca && newDcaPlan.enableSwap && (
+                          <div className="swap-info">
+                            <div className="swap-info-title">🔄 代币兑换模式</div>
+                            <div className="swap-info-details">
+                              <div className="swap-info-row">
+                                <span>源币种:</span>
+                                <span>{newDcaPlan.tokenSymbol}</span>
+                              </div>
+                              <div className="swap-info-row">
+                                <span>目标币种:</span>
+                                <span className="highlight">{newDcaPlan.targetTokenSymbol}</span>
+                              </div>
+                              <div className="swap-info-row">
+                                <span>滑点容忍度:</span>
+                                <span>{(newDcaPlan.slippage * 100).toFixed(1)}%</span>
+                              </div>
+                              <div className="swap-info-note">
+                                💡 系统将自动将 {newDcaPlan.tokenSymbol} 兑换为 {newDcaPlan.targetTokenSymbol} 后发送给接收地址
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* 传统转账模式需要接收地址（包括启用 swap 的情况） */}
                 {(editingDca ? editingDca.bucket_strategy : newDcaPlan.bucketStrategy) === 'NONE' && (
                   <div className="form-group">
                     <label>接收地址 *</label>
@@ -1734,6 +1962,11 @@ function App() {
                       }}
                       placeholder="请输入接收地址"
                     />
+                    {(editingDca ? editingDca.enable_swap : newDcaPlan.enableSwap) && (
+                      <div className="address-hint">
+                        💡 兑换后的 {(editingDca ? editingDca.target_token_symbol : newDcaPlan.targetTokenSymbol) || 'SUI'} 将发送到此地址
+                      </div>
+                    )}
                   </div>
                 )}
                 
@@ -1828,7 +2061,7 @@ function App() {
         <div className="modal-overlay" onClick={closeWithdrawModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>💰 提取资金</h2>
+              <h2>提取资金</h2>
               <button 
                 className="close-btn"
                 onClick={closeWithdrawModal}
@@ -1936,7 +2169,7 @@ function App() {
           <div className="modal-overlay" onClick={() => setShowTransactionsModal(false)}>
             <div className="modal-content transactions-modal" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h2>📋 定投记录</h2>
+                <h2>定投记录</h2>
                 <button 
                   className="modal-close" 
                   onClick={() => setShowTransactionsModal(false)}
@@ -2013,9 +2246,9 @@ function App() {
                           <div className="transaction-row">
                             <span className="label">交易类型:</span>
                             <span className="value transaction-type">
-                              {transaction.transaction_type === 'bucket_withdraw' ? '💸 提币' : 
-                               transaction.transaction_type === 'bucket_investment' ? '💰 定投理财' :
-                               transaction.transaction_type === 'dca_investment' ? '📈 定投转账' : '📋 其他'}
+                              {transaction.transaction_type === 'bucket_withdraw' ? '提币' : 
+                               transaction.transaction_type === 'bucket_investment' ? '定投理财' :
+                               transaction.transaction_type === 'dca_investment' ? '定投转账' : '其他'}
                             </span>
                           </div>
                           
@@ -2043,7 +2276,7 @@ function App() {
                             className="view-on-explorer-btn"
                             onClick={() => window.open(`https://suiexplorer.com/txblock/${transaction.tx_hash}`, '_blank')}
                           >
-                            🔗 在Sui浏览器中查看
+                            在Sui浏览器中查看
                           </button>
                         </div>
                       </div>

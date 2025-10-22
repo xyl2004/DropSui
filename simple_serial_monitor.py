@@ -7,6 +7,7 @@ ESP32串口监视器 - 触发定投执行
 """
 
 import serial
+import serial.tools.list_ports
 import time
 import re
 import requests
@@ -37,19 +38,38 @@ if not SUPABASE_URL or not SUPABASE_API_KEY:
 def get_active_dca_plans():
     """获取所有运行中的定投计划"""
     try:
-        url = f"{SUPABASE_URL}/rest/v1/dca_plans?is_active=eq.true&select=id,plan_name,user_id"
+        # 先查询所有计划，看看数据情况
+        all_url = f"{SUPABASE_URL}/rest/v1/dca_plans?select=id,plan_name,user_id,is_active"
         headers = {
             'apikey': SUPABASE_API_KEY,
             'Authorization': f'Bearer {SUPABASE_API_KEY}'
         }
         
-        response = requests.get(url, headers=headers, timeout=5)
+        print(f"🔍 查询所有DCA计划: {all_url}")
+        all_response = requests.get(all_url, headers=headers, timeout=5)
+        
+        if all_response.status_code == 200:
+            all_plans = all_response.json()
+            print(f"📊 数据库中的所有计划: {len(all_plans)} 个")
+            for plan in all_plans:
+                print(f"📋 计划: {plan.get('plan_name')} (ID: {plan.get('id')}), 用户: {plan.get('user_id')}, 状态: {plan.get('is_active')} (类型: {type(plan.get('is_active'))})")
+        else:
+            print(f"❌ 查询所有计划失败: {all_response.status_code}")
+        
+        # 然后查询活跃计划
+        active_url = f"{SUPABASE_URL}/rest/v1/dca_plans?is_active=eq.true&select=id,plan_name,user_id,is_active"
+        print(f"🔍 查询活跃DCA计划: {active_url}")
+        response = requests.get(active_url, headers=headers, timeout=5)
         
         if response.status_code == 200:
             plans = response.json()
+            print(f"📊 找到 {len(plans)} 个活跃DCA计划")
+            for plan in plans:
+                print(f"🟢 活跃计划: {plan.get('plan_name')} (ID: {plan.get('id')}), 用户: {plan.get('user_id')}, 状态: {plan.get('is_active')}")
             return plans
         else:
             print(f"❌ 获取定投计划失败: {response.status_code}")
+            print(f"响应内容: {response.text}")
             return []
             
     except Exception as e:
@@ -244,10 +264,44 @@ def monitor_serial(port="/dev/cu.usbserial-10", baudrate=115200):
             ser.close()
             print("✅ 串口已关闭")
 
+def auto_detect_esp32_port():
+    """自动检测ESP32串口"""
+    ports = serial.tools.list_ports.comports()
+    
+    # 优先查找 cu.usbserial 设备（macOS推荐）
+    for port in ports:
+        if 'usbserial' in port.device or 'USB' in port.device:
+            return port.device
+    
+    # 如果没找到，返回None
+    return None
+
 if __name__ == "__main__":
     # 检查命令行参数
-    port = "/dev/cu.usbserial-10"
     if len(sys.argv) > 1:
         port = sys.argv[1]
+    else:
+        # 自动检测串口
+        port = auto_detect_esp32_port()
+        if not port:
+            print("❌ 未检测到ESP32设备")
+            print("💡 请检查:")
+            print("   1. ESP32是否通过USB连接到电脑")
+            print("   2. USB驱动是否已安装")
+            print("")
+            print("🔍 可用的串口设备:")
+            ports = serial.tools.list_ports.comports()
+            if ports:
+                for p in ports:
+                    print(f"   - {p.device}: {p.description}")
+            else:
+                print("   (未发现任何串口设备)")
+            print("")
+            print("💡 也可以手动指定串口:")
+            print("   python3 simple_serial_monitor.py /dev/cu.usbserial-10")
+            sys.exit(1)
+        
+        print(f"✅ 自动检测到ESP32设备: {port}")
+        print("")
     
     monitor_serial(port)

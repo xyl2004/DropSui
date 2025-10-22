@@ -21,6 +21,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@cetusprotocol/cetus-sui-clmm-sdk": "^5.4.0",
     "@mysten/sui.js": "^0.54.1",
     "@supabase/supabase-js": "^2.58.0",
     "bucket-protocol-sdk": "^1.0.3",
